@@ -38,6 +38,48 @@ Generate novel images that capture the visual essence of a personal photo archiv
 
 ---
 
+## Phase 0: The Undocumented Era (June - November 2025)
+
+**Duration:** ~5 months
+**Result:** 15 versions, countless restarts, no formal logging
+
+Before the numbered experiments began, there was a long period of undocumented exploration. The project started in June 2025 with naive attempts at image generation.
+
+### What was tried (reconstructed from old files):
+
+- **V1-V5:** Basic autoencoders, understanding PyTorch
+- **V6-V10:** First GAN attempts, learning about mode collapse the hard way
+- **V11-V15:** Conditional StyleGAN2 experiments, feature engineering
+
+### Evidence found:
+
+```
+/scripts/old_scripts/          - 20+ abandoned Python files from Dec 2025
+/experiments/RESCUE_2026-02-07 - Emergency backup after system crash
+genesis/                       - Early "genesis" experiment (predates numbering)
+genesis_full/                  - Extended genesis attempt
+```
+
+### Key files from this era:
+
+| File | Date | Purpose |
+|------|------|---------|
+| `stylegan2_generator.py` | Dec 22 | First working generator |
+| `stylegan2_discriminator.py` | Dec 22 | First discriminator |
+| `conditional_stylegan2.py` | Dec 22 | Added 8-feature conditioning |
+| `tag_with_qwen.py` | Jan 2 | Dataset labeling attempts |
+
+### Why no documentation survived:
+
+- Learning phase, not expecting to document
+- Many quick experiments thrown away
+- Focus on "making it work" over recording failures
+- Only started formal logging after repeated frustration
+
+**Lesson:** The documented 46 experiments represent only the organized phase. The true experiment count is likely 60-80+.
+
+---
+
 ## Phase 1: StyleGAN2 Attempts (EXP-001 to EXP-017)
 
 **Duration:** ~150 hours
