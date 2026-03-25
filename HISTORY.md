@@ -165,6 +165,88 @@ This metaphor captures why pretrained models were eventually rejected - the late
 
 ---
 
+### Educational Materials Created
+
+**Source:** `vetroal.se/examenbody/projects/minbildai/`
+
+An entire educational website was built to document and teach the concepts:
+
+| Resource | Content |
+|----------|---------|
+| `index.html` | Project overview and architecture |
+| `quiz.html` | 156 multiple-choice questions |
+| `flashcards.html` | Concept review cards |
+| `code.html` | Annotated source code |
+
+**Quiz categories:**
+- VQ-VAE: 40 questions
+- Transformer: 35 questions
+- Loss Functions: 25 questions
+- Training: 30 questions
+- Experiments: 26 questions
+
+---
+
+### Loss Functions Developed
+
+**Source:** `src/analysis/losses.py`, `train_vqvae_64_v2.py`
+
+Multiple specialized loss functions were implemented:
+
+```python
+# SSIM Loss - Structural Similarity
+def ssim_loss(img1, img2):
+    # Captures contrast, luminance, structure
+
+# Sobel Edge Loss - Contour awareness
+class SobelEdgeDetector:
+    # Detects edges using Sobel filters
+    # Based on DiffusionEdge (arXiv 2401.02032)
+
+# Contour-Weighted Loss
+class ContourAwareLoss:
+    # Weights pixel loss by edge magnitude
+    # Based on arXiv 2601.14338
+
+# Perceptual Loss
+# From arXiv 2401.00110
+```
+
+**Why these failed:** MSE-based losses (including SSIM) encourage averaging. Even edge-aware losses couldn't overcome the fundamental problem of learning distributions rather than structure.
+
+---
+
+### Scripts Created During Development
+
+**Source:** `/home/biffy/examen/min_bild_ai/*.py` (100+ files)
+
+| Category | Examples | Purpose |
+|----------|----------|---------|
+| Training | `train_vqvae_64_v2.py`, `train_sculpturenet.py` | Model training |
+| Continuation | `continue_contour_vqvae.py`, `continue_token_gentle.py` | Resume training |
+| Dataset | `curate_dataset.py`, `filter_aggressive.py` | Data preparation |
+| Analysis | `evaluate_structured_ae.py`, `compare_sculpturenet_versions.py` | Evaluation |
+| Generation | `create_interpolated_images.py`, `create_contact_sheet.py` | Image creation |
+| Utilities | `disk_guard.py`, `find_trash_images.py` | System tools |
+
+---
+
+### Alternative Architectures Attempted
+
+**Source:** `src/models/` directory
+
+| Architecture | Files | Result |
+|--------------|-------|--------|
+| SculptureNet | `sculpturenet.py`, `train_sculpturenet.py` | 1% improvement over baseline |
+| Structured AE | `structured_autoencoder.py` | Lost spatial coherence |
+| Depth Network | `depth_network.py` | Added complexity without benefit |
+| Slot Attention | `slot_attention.py`, `slot_diffusion.py` | Designed for synthetic data |
+| Edge Diffusion | `edge_diffusion.py`, `edge_diffusion_v2.py` | Sparse data caused collapse |
+| NadjaEmbed | `nadja_embed.py` | Custom embedding, still blurry |
+| Latent Diffusion | `latent_diffusion.py`, `latent_diffusion_clip.py` | Distribution learning, not structure |
+
+---
+
 ## Phase 1: StyleGAN2 Attempts (EXP-001 to EXP-017)
 
 **Duration:** ~150 hours
