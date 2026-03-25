@@ -80,6 +80,82 @@ The implementation process:
 
 ---
 
+---
+
+## Data Augmentation Techniques (Tested)
+
+### ADA - Adaptive Discriminator Augmentation
+
+**Paper:** "Training Generative Adversarial Networks with Limited Data"
+**Authors:** Tero Karras, Miika Aittala, Janne Hellsten, Samuli Laine, Jaakko Lehtinen, Timo Aila
+**Published:** NeurIPS 2020
+**arXiv:** https://arxiv.org/abs/2006.06676
+
+Adaptive augmentation that adjusts intensity based on discriminator overfitting. Tested but not used in final model.
+
+### DiffAugment
+
+**Paper:** "Differentiable Augmentation for Data-Efficient GAN Training"
+**Authors:** Shengyu Zhao, Zhijian Liu, Ji Lin, Jun-Yan Zhu, Song Han (MIT Han Lab)
+**Published:** NeurIPS 2020
+**arXiv:** https://arxiv.org/abs/2006.10738
+**Code:** https://github.com/mit-han-lab/data-efficient-gans
+
+Differentiable augmentations (color, translation, cutout) that can be applied during training.
+
+---
+
+## Attention Mechanisms (Tested)
+
+### Self-Attention GAN (SAGAN)
+
+**Paper:** "Self-Attention Generative Adversarial Networks"
+**Authors:** Han Zhang, Ian Goodfellow, Dimitris Metaxas, Augustus Odena
+**Published:** ICML 2019
+**arXiv:** https://arxiv.org/abs/1805.08318
+
+Self-attention layers to capture long-range dependencies in images. Tested but added complexity without improving results for our dataset.
+
+### Spectral Normalization
+
+**Paper:** "Spectral Normalization for Generative Adversarial Networks"
+**Authors:** Takeru Miyato, Toshiki Kataoka, Masanori Koyama, Yuichi Yoshida
+**Published:** ICLR 2018
+**arXiv:** https://arxiv.org/abs/1802.05957
+
+Stabilizes GAN training by constraining discriminator Lipschitz constant. Used in some experiments.
+
+---
+
+## Transformer Architecture (Tested)
+
+### Original Transformer
+
+**Paper:** "Attention Is All You Need"
+**Authors:** Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin
+**Published:** NeurIPS 2017
+**arXiv:** https://arxiv.org/abs/1706.03762
+
+Foundation for Token Transformer experiments. Sinusoidal positional encoding used.
+
+---
+
+## Classical Techniques
+
+### Sobel Edge Detection
+
+Classical image processing technique for edge detection using gradient approximation. Used in contour-aware loss experiments.
+
+**Reference:** Sobel, I., Feldman, G. (1968). "A 3x3 Isotropic Gradient Operator for Image Processing"
+
+### Lanczos Resampling
+
+High-quality image resampling using sinc function approximation. Used for dataset preprocessing and upscaling.
+
+**Reference:** Lanczos, C. (1964). "Evaluation of Noisy Data". Journal of SIAM Numerical Analysis.
+
+---
+
 ## Failed Approaches (with references)
 
 ### StyleGAN2
