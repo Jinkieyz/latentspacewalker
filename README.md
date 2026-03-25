@@ -381,4 +381,12 @@ based on that specific visual vocabulary.
 
 ---
 
+## Documentation
+
+- **[HISTORY.md](HISTORY.md)** - Complete journey: 400 hours, 46 experiments, what failed and why
+- **[REPRODUCE.md](REPRODUCE.md)** - Step-by-step guide to recreate everything from scratch
+- **[docs/LATENT_SPACE_GUIDE.md](docs/LATENT_SPACE_GUIDE.md)** - Deep dive into latent space mathematics
+
+---
+
 *latentspacewalker - 2026*
