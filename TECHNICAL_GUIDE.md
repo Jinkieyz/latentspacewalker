@@ -384,7 +384,19 @@ After training:
 
 # Part 4: The Complete Experiment History
 
-## Timeline: 600+ Hours, 46 Experiments (June 2025 - March 2026)
+## Timeline: ~900 Hours, 46 Experiments (June 2025 - March 2026)
+
+**Time breakdown:**
+| Category | Hours |
+|----------|-------|
+| GPU training (logged) | 370 |
+| Code development | 150 |
+| Research/papers | 80 |
+| Debugging/analysis | 100 |
+| Dataset preparation | 50 |
+| Documentation | 50 |
+| Unlogged failed runs | 100 |
+| **Total** | **~900** |
 
 ### Phase 1: StyleGAN2 (EXP-001 to EXP-017)
 

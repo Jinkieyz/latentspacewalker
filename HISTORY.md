@@ -8,7 +8,17 @@
 
 This document chronicles the complete journey of building a generative image model from scratch, without pretrained weights, trained entirely on a personal photograph archive of ~7,800 images.
 
-**Total development time:** ~600+ hours across 46 experiments (June 2025 - March 2026)
+**Total development time:** ~900 hours across 46 experiments (June 2025 - March 2026)
+
+**Time breakdown:**
+- GPU training time (logged): ~370 hours
+- Code development: ~150 hours
+- Research and paper reading: ~80 hours
+- Debugging and analysis: ~100 hours
+- Dataset preparation: ~50 hours
+- Documentation: ~50 hours
+- Unlogged failed runs: ~100 hours
+
 **Final working model:** Progressive GAN at 128x128 resolution
 **Key insight:** Architecture does NOT solve data problems
 
