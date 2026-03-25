@@ -384,9 +384,9 @@ After training:
 
 # Part 4: The Complete Experiment History
 
-## Timeline: ~7000 Hours, 46 Experiments (June 2025 - March 2026)
+## Timeline: 7128 Hours, 46 Experiments (June 2025 - March 2026)
 
-297 days of continuous development, training, monitoring, and iteration.
+297 days x 24 hours of continuous development, training, monitoring, and iteration.
 
 **What those hours include:**
 - GPU training running (often overnight/multi-day)

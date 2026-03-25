@@ -8,9 +8,9 @@
 
 This document chronicles the complete journey of building a generative image model from scratch, without pretrained weights, trained entirely on a personal photograph archive of ~7,800 images.
 
-**Total project time:** ~7000 hours across 46 experiments (June 2025 - March 2026)
+**Total project time:** 7128 hours across 46 experiments (June 2025 - March 2026)
 
-297 days of continuous development, training, monitoring, and iteration.
+297 days x 24 hours of continuous development, training, monitoring, and iteration.
 
 **What those hours include:**
 - GPU training running (often overnight/multi-day)
