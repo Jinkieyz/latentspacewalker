@@ -74,7 +74,7 @@ This was eventually rejected because pretrained models carry knowledge from bill
 
 **Source:** `MIN_BILD_AI_V15_KOMPLETT.md` (dated 2026-01-26)
 
-> "15 versioner sedan juni 2025. Tusentals GPU-timmar på en GTX 1660 Super."
+> "15 versions since June 2025. Thousands of GPU hours on a GTX 1660 Super."
 
 | Version | Period | Focus | Result |
 |---------|--------|-------|--------|
@@ -125,12 +125,12 @@ This was eventually rejected because pretrained models carry knowledge from bill
 **Source:** Comparison of `KOMPLETT_DOKUMENTATION.txt` vs final `CLAUDE.md`
 
 **January 2026 (pretrained approach):**
-> "Projektet använder förtränade modeller för textförståelse"
-> "CLIP (OpenAI): Text-till-bild-embedding"
+> "The project uses pretrained models for text understanding"
+> "CLIP (OpenAI): Text-to-image embedding"
 
 **February 2026 (from-scratch principle):**
-> "INGEN pretrained bias - allt tränas from scratch"
-> "FÖRESLÅ ALDRIG: Fine-tune Stable Diffusion, LoRA/DreamBooth"
+> "NO pretrained bias - everything trained from scratch"
+> "NEVER SUGGEST: Fine-tune Stable Diffusion, LoRA/DreamBooth"
 
 This shift was driven by realizing that pretrained models dominated the output with their learned biases, making the "personal archive" aspect meaningless.
 
@@ -147,11 +147,10 @@ This shift was driven by realizing that pretrained models dominated the output w
 
 **Source code comments (from `vaeana.py`):**
 ```python
-# "Penslar som inte doppats i andras färger"
-# ("Brushes not dipped in others' colors")
+# "Brushes not dipped in others' colors"
 ```
 
-This metaphor captures why pretrained models were eventually rejected.
+This metaphor captures why pretrained models were eventually rejected - the latent space should be shaped only by personal data, not by knowledge from billions of external images.
 
 ---
 
