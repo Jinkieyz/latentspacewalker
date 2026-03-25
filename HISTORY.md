@@ -38,45 +38,131 @@ Generate novel images that capture the visual essence of a personal photo archiv
 
 ---
 
-## Phase 0: The Undocumented Era (June - November 2025)
+## Phase 0: The Undocumented Era (June 2025 - January 2026)
 
-**Duration:** ~5 months
-**Result:** 15 versions, countless restarts, no formal logging
+**Duration:** ~7 months
+**Result:** 15+ versions, philosophy shift from pretrained to from-scratch
+**Evidence:** Reconstructed from archived files and old documentation
 
-Before the numbered experiments began, there was a long period of undocumented exploration. The project started in June 2025 with naive attempts at image generation.
+Before the numbered experiments began, there was a long period of undocumented exploration. This phase saw a fundamental philosophical shift: from using pretrained models (CLIP, SAM, Qwen) to the final "from scratch" principle.
 
-### What was tried (reconstructed from old files):
+---
 
-- **V1-V5:** Basic autoencoders, understanding PyTorch
-- **V6-V10:** First GAN attempts, learning about mode collapse the hard way
-- **V11-V15:** Conditional StyleGAN2 experiments, feature engineering
+### Early Architecture (with pretrained models)
 
-### Evidence found:
+**Source:** `KOMPLETT_DOKUMENTATION.txt` (dated 2026-01-17)
+
+The original project used multiple pretrained components:
 
 ```
-/scripts/old_scripts/          - 20+ abandoned Python files from Dec 2025
-/experiments/RESCUE_2026-02-07 - Emergency backup after system crash
-genesis/                       - Early "genesis" experiment (predates numbering)
-genesis_full/                  - Extended genesis attempt
+EXTERNAL MODELS USED (later abandoned):
+- CLIP (OpenAI)     : Text-to-image embedding
+- Qwen2-VL          : Vision-Language model for captioning
+- SAM (Meta)        : Segment Anything Model for masks
 ```
 
-### Key files from this era:
+**Original pipeline:**
+```
+[Images] → SAM masks → Qwen captions → CLIP embeddings → StyleGAN2 → [Generated images]
+```
 
-| File | Date | Purpose |
-|------|------|---------|
-| `stylegan2_generator.py` | Dec 22 | First working generator |
-| `stylegan2_discriminator.py` | Dec 22 | First discriminator |
-| `conditional_stylegan2.py` | Dec 22 | Added 8-feature conditioning |
-| `tag_with_qwen.py` | Jan 2 | Dataset labeling attempts |
+This was eventually rejected because pretrained models carry knowledge from billions of external images, defeating the purpose of training on personal data alone.
 
-### Why no documentation survived:
+---
 
-- Learning phase, not expecting to document
-- Many quick experiments thrown away
-- Focus on "making it work" over recording failures
-- Only started formal logging after repeated frustration
+### Version History (V1-V15)
 
-**Lesson:** The documented 46 experiments represent only the organized phase. The true experiment count is likely 60-80+.
+**Source:** `MIN_BILD_AI_V15_KOMPLETT.md` (dated 2026-01-26)
+
+> "15 versioner sedan juni 2025. Tusentals GPU-timmar på en GTX 1660 Super."
+
+| Version | Period | Focus | Result |
+|---------|--------|-------|--------|
+| V1-V3 | Jun-Jul 2025 | Basic PyTorch learning | Understanding tensors |
+| V4-V6 | Aug 2025 | First GAN attempts | Mode collapse |
+| V7-V9 | Sep 2025 | CLIP conditioning | Pretrained bias |
+| V10-V12 | Oct-Nov 2025 | SAM segmentation | Complex pipeline |
+| V13-V14 | Dec 2025 | Feature engineering | 32 features extracted |
+| V15 | Jan 2026 | 8-feature conditioning | Training when documented |
+
+---
+
+### Key Files from This Era
+
+**Source:** File modification dates on disk
+
+| File | Date | Purpose | Location |
+|------|------|---------|----------|
+| `stylegan2_generator.py` | Dec 22, 2025 | First from-scratch generator | `src/models/` |
+| `stylegan2_discriminator.py` | Dec 22, 2025 | Discriminator architecture | `src/models/` |
+| `stylegan2_ada.py` | Dec 22, 2025 | Adaptive augmentation | `src/models/` |
+| `conditional_stylegan2.py` | Dec 22, 2025 | Added feature conditioning | `src/models/` |
+| `evaluate_model.py` | Dec 20, 2025 | FID/IS metrics | `scripts/old_scripts/` |
+| `analyze_contour_data.py` | Dec 20, 2025 | Contour analysis | `scripts/old_scripts/` |
+| `tag_with_qwen.py` | Jan 2, 2026 | Dataset labeling with Qwen | `scripts/old_scripts/` |
+| `tag_fast.py` | Jan 2, 2026 | Fast tagging variant | `scripts/old_scripts/` |
+| `tag_turbo.py` | Jan 2, 2026 | Optimized tagging | `scripts/old_scripts/` |
+| `tag_batch.py` | Jan 2, 2026 | Batch processing | `scripts/old_scripts/` |
+
+---
+
+### Abandoned Experiments
+
+**Source:** `/experiments/` directory
+
+| Experiment | Date | Approach | Why Abandoned |
+|------------|------|----------|---------------|
+| `genesis/` | Feb 11 | Early latent learning | Predates numbering system |
+| `genesis_full/` | Feb 11 | Extended genesis | 516 MB latents.pt preserved |
+| `simple_ae/` | Feb 11 | Basic autoencoder | Too simple for the task |
+| `simple_gan/` | Feb 12 | Minimal GAN | Mode collapse |
+| `simple_gan_v2/` | Feb 12 | Improved GAN | Still collapsed |
+
+---
+
+### The Philosophy Shift
+
+**Source:** Comparison of `KOMPLETT_DOKUMENTATION.txt` vs final `CLAUDE.md`
+
+**January 2026 (pretrained approach):**
+> "Projektet använder förtränade modeller för textförståelse"
+> "CLIP (OpenAI): Text-till-bild-embedding"
+
+**February 2026 (from-scratch principle):**
+> "INGEN pretrained bias - allt tränas from scratch"
+> "FÖRESLÅ ALDRIG: Fine-tune Stable Diffusion, LoRA/DreamBooth"
+
+This shift was driven by realizing that pretrained models dominated the output with their learned biases, making the "personal archive" aspect meaningless.
+
+---
+
+### Evidence of Extensive Work
+
+**27 Python files in `old_scripts/` alone:**
+- 8 different tagging scripts (tag_*.py)
+- 5 analysis scripts (analyze_*.py)
+- 3 evaluation scripts (evaluate_*.py)
+- Dashboard creation
+- Visualization tools
+
+**Source code comments (from `vaeana.py`):**
+```python
+# "Penslar som inte doppats i andras färger"
+# ("Brushes not dipped in others' colors")
+```
+
+This metaphor captures why pretrained models were eventually rejected.
+
+---
+
+### Why Documentation Was Lost
+
+1. **Learning phase:** Focus on understanding, not recording
+2. **Rapid iteration:** Many quick experiments discarded
+3. **Philosophy change:** Early work invalidated by the shift to from-scratch
+4. **System crashes:** `RESCUE_2026-02-07` directory shows recovery from failure
+
+**Lesson:** The documented 46 experiments (EXP-001 to EXP-046) represent only the organized phase after the from-scratch principle was established. The true experiment count including Phase 0 is likely **70-100+**.
 
 ---
 
