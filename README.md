@@ -386,6 +386,7 @@ based on that specific visual vocabulary.
 - **[HISTORY.md](HISTORY.md)** - Complete journey: 400 hours, 46 experiments, what failed and why
 - **[REPRODUCE.md](REPRODUCE.md)** - Step-by-step guide to recreate everything from scratch
 - **[REFERENCES.md](REFERENCES.md)** - Papers, repos, and attribution for all techniques used
+- **[TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** - Tensors, vectors, diffusion, GANs - complete technical education
 - **[docs/LATENT_SPACE_GUIDE.md](docs/LATENT_SPACE_GUIDE.md)** - Deep dive into latent space mathematics
 
 ---
