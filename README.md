@@ -16,6 +16,30 @@ Everything the model "knows" comes from this single source.
 
 ---
 
+## Examples
+
+### Random Walk Grid (16 frames)
+
+![Walk Seed 123](examples/walk_seed123.png)
+
+*Seed 123: Organic forms morphing through latent space*
+
+### Smooth Walk Sequence
+
+A gradual transformation through the space, showing how forms evolve:
+
+| Step 0 | Step 8 | Step 16 | Step 24 | Step 32 | Step 40 |
+|--------|--------|---------|---------|---------|---------|
+| ![](examples/smooth_sequence/step_00.png) | ![](examples/smooth_sequence/step_08.png) | ![](examples/smooth_sequence/step_16.png) | ![](examples/smooth_sequence/step_24.png) | ![](examples/smooth_sequence/step_32.png) | ![](examples/smooth_sequence/step_40.png) |
+
+### More Walks
+
+| Seed 42 | Seed 666 |
+|---------|----------|
+| ![](examples/walk_seed42.png) | ![](examples/walk_seed666.png) |
+
+---
+
 ## The Core Idea
 
 Deep generative models compress visual information into a **latent space** -
