@@ -479,7 +479,7 @@ After exhausting alternatives, returned to Progressive GAN. Extended training to
 
 ## The Central Insight
 
-After 600+ hours:
+After 7128 hours:
 
 > **"Architecture does NOT solve data problems."**
 

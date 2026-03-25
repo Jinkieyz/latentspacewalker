@@ -383,7 +383,7 @@ based on that specific visual vocabulary.
 
 ## Documentation
 
-- **[HISTORY.md](HISTORY.md)** - Complete journey: 400 hours, 46 experiments, what failed and why
+- **[HISTORY.md](HISTORY.md)** - Complete journey: 7128 hours (297 days), 46 experiments, what failed and why
 - **[REPRODUCE.md](REPRODUCE.md)** - Step-by-step guide to recreate everything from scratch
 - **[REFERENCES.md](REFERENCES.md)** - Papers, repos, and attribution for all techniques used
 - **[TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)** - Tensors, vectors, diffusion, GANs - complete technical education

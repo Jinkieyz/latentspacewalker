@@ -1,6 +1,6 @@
 # The Complete History of min_bild_ai
 
-*From 400 hours of failures to a working latent space explorer*
+*From 7128 hours of development to a working latent space explorer*
 
 ---
 
@@ -198,7 +198,7 @@ With 7,000 heterogeneous images + from-scratch training + unconditional generati
 
 ## What "Sculpture" Means
 
-The original goal was to generate "sculptures." Through 400 hours of experimentation, we refined the definition:
+The original goal was to generate "sculptures." Through months of experimentation, we refined the definition:
 
 > "A sculpture is anything centered in the frame, with defined edges, showing figure-ground separation."
 
@@ -243,7 +243,7 @@ These tools reveal the topology of what the model learned - regions of organic f
 | 2026-02-22 to 03-15 | Tokens (9 exps) | 90 | Mode collapse |
 | 2026-03-24 to 03-25 | Return to ProgGAN | 5 | Confirmed best |
 
-**Total:** ~400 hours, 46 experiments
+**Total:** 7128 hours, 46 experiments
 
 ---
 
@@ -273,7 +273,7 @@ These tools reveal the topology of what the model learned - regions of organic f
 
 ## Acknowledgments
 
-400 hours of GPU time, countless freezes, and many experiments that taught more through failure than success.
+7128 hours of development, countless freezes, and many experiments that taught more through failure than success.
 
 ---
 
