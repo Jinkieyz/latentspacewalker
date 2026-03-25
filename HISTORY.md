@@ -165,28 +165,6 @@ This metaphor captures why pretrained models were eventually rejected - the late
 
 ---
 
-### Educational Materials Created
-
-**Source:** `vetroal.se/examenbody/projects/minbildai/`
-
-An entire educational website was built to document and teach the concepts:
-
-| Resource | Content |
-|----------|---------|
-| `index.html` | Project overview and architecture |
-| `quiz.html` | 156 multiple-choice questions |
-| `flashcards.html` | Concept review cards |
-| `code.html` | Annotated source code |
-
-**Quiz categories:**
-- VQ-VAE: 40 questions
-- Transformer: 35 questions
-- Loss Functions: 25 questions
-- Training: 30 questions
-- Experiments: 26 questions
-
----
-
 ### Loss Functions Developed
 
 **Source:** `src/analysis/losses.py`, `train_vqvae_64_v2.py`
@@ -218,7 +196,7 @@ class ContourAwareLoss:
 
 ### Scripts Created During Development
 
-**Source:** `/home/biffy/examen/min_bild_ai/*.py` (100+ files)
+**Source:** Project root directory (100+ files)
 
 | Category | Examples | Purpose |
 |----------|----------|---------|
