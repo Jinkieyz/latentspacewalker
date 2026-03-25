@@ -1,13 +1,10 @@
 """
-Progressive Growing GAN - SMOOTH VERSION
+Progressive Growing GAN - Smooth Version
 
-Fixar banding-artefakter genom bilinear upsampling istallet for nearest.
+Fixes banding artifacts by using bilinear upsampling instead of nearest neighbor.
 
-Kompatibel med original progressive_gan.py checkpoints (levels 0-4).
-Lagger till Level 5 (128x128) med 32 kanaler.
-
-Baserat pa: "Progressive Growing of GANs" (Karras et al., 2018)
-Med fix fran: "Deconvolution and Checkerboard Artifacts" (Odena et al., 2016)
+Based on: "Progressive Growing of GANs" (Karras et al., 2018)
+With fix from: "Deconvolution and Checkerboard Artifacts" (Odena et al., 2016)
 """
 
 import torch
@@ -20,7 +17,7 @@ from PIL import Image
 
 
 class EqualizedLinear(nn.Module):
-    """Linear layer med equalized learning rate."""
+    """Linear layer with equalized learning rate."""
     def __init__(self, in_features, out_features, bias=True):
         super().__init__()
         self.weight = nn.Parameter(torch.randn(out_features, in_features))
@@ -32,7 +29,7 @@ class EqualizedLinear(nn.Module):
 
 
 class EqualizedConv2d(nn.Module):
-    """Conv2d med equalized learning rate."""
+    """Conv2d with equalized learning rate."""
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0):
         super().__init__()
         self.weight = nn.Parameter(torch.randn(out_channels, in_channels, kernel_size, kernel_size))
@@ -52,7 +49,7 @@ class PixelNorm(nn.Module):
 
 
 class MinibatchStdDev(nn.Module):
-    """Minibatch standard deviation - hjalper mot mode collapse."""
+    """Minibatch standard deviation - helps prevent mode collapse."""
     def forward(self, x):
         batch_size = x.size(0)
         std = torch.std(x, dim=0, keepdim=True)
@@ -63,8 +60,8 @@ class MinibatchStdDev(nn.Module):
 
 class SmoothGeneratorBlock(nn.Module):
     """
-    Generator block med BILINEAR upsampling istallet for nearest.
-    Detta eliminerar blockiga artefakter vid hog upplosning.
+    Generator block with BILINEAR upsampling instead of nearest neighbor.
+    This eliminates blocky artifacts at high resolution.
     """
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -74,7 +71,7 @@ class SmoothGeneratorBlock(nn.Module):
         self.leaky = nn.LeakyReLU(0.2)
 
     def forward(self, x):
-        # BILINEAR istallet for NEAREST - kritisk andring!
+        # BILINEAR instead of NEAREST - critical change!
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
         x = self.leaky(self.pixel_norm(self.conv1(x)))
         x = self.leaky(self.pixel_norm(self.conv2(x)))
@@ -82,7 +79,7 @@ class SmoothGeneratorBlock(nn.Module):
 
 
 class DiscriminatorBlock(nn.Module):
-    """Discriminator downsampling block (oforandrad)."""
+    """Discriminator downsampling block."""
     def __init__(self, in_channels, out_channels):
         super().__init__()
         self.conv1 = EqualizedConv2d(in_channels, out_channels, 3, padding=1)
@@ -99,10 +96,7 @@ class DiscriminatorBlock(nn.Module):
 
 class SmoothProgressiveGenerator(nn.Module):
     """
-    Progressive Generator med smooth (bilinear) upsampling.
-
-    VIKTIG: Kanaler matchar original progressive_gan.py for levels 0-4!
-    Level 5 (128x128) och Level 6 (256x256) tillagda.
+    Progressive Generator with smooth (bilinear) upsampling.
 
     Resolutions: 4 -> 8 -> 16 -> 32 -> 64 -> 128 -> 256
     Levels:      0    1     2     3     4      5      6
@@ -112,7 +106,7 @@ class SmoothProgressiveGenerator(nn.Module):
         super().__init__()
         self.latent_dim = latent_dim
 
-        # Initial block (4x4) - EXAKT som original
+        # Initial block (4x4)
         self.initial = nn.Sequential(
             EqualizedLinear(latent_dim, base_channels * 4 * 4),
             nn.Unflatten(1, (base_channels, 4, 4)),
@@ -123,13 +117,11 @@ class SmoothProgressiveGenerator(nn.Module):
             nn.LeakyReLU(0.2),
         )
 
-        # Channel progression - levels 0-4 matchar original, level 5-6 tillagda
-        # Level:                 0      1      2      3     4     5      6
-        # Resolution:           4x4   8x8   16x16  32x32 64x64 128x128 256x256
-        # OBS: Level 6 far 32 kanaler (samma som Level 5) for stabilitet
+        # Channel progression for each level
+        # Note: Level 6 uses 32 channels (same as Level 5) for stability
         channels = [base_channels, base_channels, 256, 128, 64, 32, 32]
 
-        # Progressive blocks - anvander SmoothGeneratorBlock
+        # Progressive blocks using SmoothGeneratorBlock
         self.blocks = nn.ModuleList()
         for i in range(len(channels) - 1):
             self.blocks.append(SmoothGeneratorBlock(channels[i], channels[i+1]))
@@ -153,7 +145,7 @@ class SmoothProgressiveGenerator(nn.Module):
             x = self.blocks[i](x)
 
         if self.alpha < 1.0:
-            # BILINEAR fade-in ocksa
+            # BILINEAR fade-in as well
             x_prev_up = F.interpolate(x_prev, scale_factor=2, mode='bilinear', align_corners=False)
             rgb_prev = self.to_rgb[self.current_level - 1](x_prev_up)
             rgb_curr = self.to_rgb[self.current_level](x)
@@ -174,17 +166,13 @@ class SmoothProgressiveGenerator(nn.Module):
 
 class SmoothProgressiveDiscriminator(nn.Module):
     """
-    Progressive Discriminator (spegelbar struktur till Generator).
-
-    VIKTIG: Kanaler matchar original progressive_gan.py for levels 0-4!
-    Level 5 (128x128) och Level 6 (256x256) tillagda.
+    Progressive Discriminator (mirror structure to Generator).
     """
     def __init__(self, base_channels=256):
         super().__init__()
         self.base_channels = base_channels
 
-        # Kanaler for varje upplosning - matchar Generator
-        # Level 6 (256x256) har 32 kanaler (samma som Level 5 for stabilitet)
+        # Channel progression matching Generator
         self.channels = [base_channels, base_channels, 256, 128, 64, 32, 32]
 
         # fromRGB layers
@@ -248,12 +236,12 @@ class SmoothProgressiveDiscriminator(nn.Module):
 
 
 class ProgressiveDataset(Dataset):
-    """Dataset som kan returnera bilder i olika upplosningar."""
+    """Dataset that returns images at different resolutions."""
     def __init__(self, image_dir, current_resolution=4):
         self.image_dir = Path(image_dir)
         self.current_resolution = current_resolution
         self.image_files = list(self.image_dir.glob('*.png')) + list(self.image_dir.glob('*.jpg'))
-        print(f"Hittade {len(self.image_files)} bilder")
+        print(f"Found {len(self.image_files)} images")
 
     def set_resolution(self, resolution):
         self.current_resolution = resolution
@@ -270,5 +258,5 @@ class ProgressiveDataset(Dataset):
 
 
 def get_resolution_for_level(level):
-    """Returnerar upplosning for en given level."""
+    """Returns resolution for a given level."""
     return 4 * (2 ** level)

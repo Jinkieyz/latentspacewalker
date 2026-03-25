@@ -1,299 +1,262 @@
 """
-Latent Space Explorer for Progressive GAN
+Latent Space Explorer
 
-Hitta riktningar i latent space som styr mot specifika egenskaper
-(t.ex. skulptur, glas, organisk).
-
-Arbetsflode:
-1. Generera bilder med slumpmassiga z-vektorer
-2. Labella manuellt (skulptur/ej skulptur)
-3. Trana linjar klassificerare
-4. Extrahera riktningsvektor
-5. Generera bilder langs riktningen
-
-Koppling till teori:
-Latent space ar det "preindividuella" - ett potentialfalt dar alla
-mojliga bilder existerar virtuellt. Att navigera detta rum ar individuation.
+Tools for exploring the latent space of a trained Progressive GAN:
+1. Generate samples with random z-vectors
+2. Train direction classifier (requires labeling)
+3. Explore along learned directions
+4. Interpolate between points
+5. Random walks through the space
 """
 
-import sys
-sys.path.insert(0, '/home/biffy/examen/min_bild_ai')
-
 import torch
-import torch.nn as nn
-from torchvision.utils import save_image
-from pathlib import Path
 import json
-import numpy as np
-from PIL import Image
+from torchvision.utils import save_image, make_grid
+from pathlib import Path
+import argparse
 
 from progressive_gan_smooth import SmoothProgressiveGenerator
 
-# Konfig
-CHECKPOINT = '/home/biffy/examen/min_bild_ai/experiments/progressive_level5_continued/checkpoints/epoch_0100.pt'
-OUTPUT_DIR = Path('/home/biffy/examen/min_bild_ai/latent_exploration')
+# Configuration - adjust for your setup
+CHECKPOINT = 'checkpoints/generator.pt'
+OUTPUT_DIR = Path('exploration')
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LATENT_DIM = 256
 
 
-def load_generator():
-    """Ladda tranad generator"""
-    print(f"Laddar generator fran {CHECKPOINT}")
+def load_generator(checkpoint_path=CHECKPOINT):
+    """Load trained generator from checkpoint."""
+    print(f"Loading generator from {checkpoint_path}")
     G = SmoothProgressiveGenerator(latent_dim=LATENT_DIM).to(DEVICE)
-
-    ckpt = torch.load(CHECKPOINT, map_location=DEVICE, weights_only=False)
+    ckpt = torch.load(checkpoint_path, map_location=DEVICE, weights_only=False)
     G.load_state_dict(ckpt['G_state_dict'], strict=False)
-    G.current_level = 5
+    G.current_level = 5  # 128x128
     G.alpha = 1.0
     G.eval()
-
-    print(f"Generator laddad (epoch {ckpt.get('epoch', '?')})")
+    print(f"Generator loaded (epoch {ckpt.get('epoch', '?')})")
     return G
 
 
-def generate_samples(G, n_samples=100, seed=42):
+def generate_samples(G, n_samples=100, output_dir=OUTPUT_DIR):
     """
-    Generera N bilder med slumpmassiga z-vektorer.
-    Spara bade bilder och z-vektorer for senare analys.
+    Generate N images with random z-vectors.
+    Saves both images and z-vectors for later analysis.
     """
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    samples_dir = OUTPUT_DIR / 'samples_to_label'
-    samples_dir.mkdir(exist_ok=True)
-
-    torch.manual_seed(seed)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     z_vectors = []
 
-    print(f"Genererar {n_samples} samples...")
+    print(f"Generating {n_samples} samples...")
 
     with torch.no_grad():
         for i in range(n_samples):
             z = torch.randn(1, LATENT_DIM, device=DEVICE)
             img = G(z)
-            img = (img + 1) / 2  # [-1,1] -> [0,1]
+            img = (img + 1) / 2
 
-            # Spara bild
-            save_image(img, samples_dir / f'sample_{i:04d}.png')
-
-            # Spara z-vektor
+            save_image(img, output_dir / f'sample_{i:04d}.png')
             z_vectors.append(z.cpu().numpy().flatten().tolist())
 
-            if (i + 1) % 20 == 0:
+            if (i + 1) % 10 == 0:
                 print(f"  {i+1}/{n_samples}")
 
-    # Spara alla z-vektorer
-    with open(OUTPUT_DIR / 'z_vectors.json', 'w') as f:
+    # Save z-vectors for reproducibility
+    with open(output_dir / 'z_vectors.json', 'w') as f:
         json.dump(z_vectors, f)
 
-    # Skapa tom labels-fil
+    # Create empty labels file
     labels = {f'sample_{i:04d}.png': None for i in range(n_samples)}
-    with open(OUTPUT_DIR / 'labels.json', 'w') as f:
+    with open(output_dir / 'labels.json', 'w') as f:
         json.dump(labels, f, indent=2)
 
-    print(f"\nKlart! Samples sparade i: {samples_dir}")
-    print(f"Z-vektorer sparade i: {OUTPUT_DIR / 'z_vectors.json'}")
-    print(f"\nNASTA STEG:")
-    print(f"1. Oppna {samples_dir}")
-    print(f"2. Titta igenom bilderna")
-    print(f"3. Redigera {OUTPUT_DIR / 'labels.json'}")
-    print(f"   - Satt 1 for skulptur/bra")
-    print(f"   - Satt 0 for ej skulptur/dalig")
-    print(f"4. Kor: python latent_explorer.py --train")
+    print(f"\nDone! Samples saved to {output_dir}")
+    print(f"\nTo train a direction classifier:")
+    print(f"   - Set 1 for good/desired images")
+    print(f"   - Set 0 for bad/undesired images")
+    print(f"   - Edit {output_dir / 'labels.json'}")
 
 
-def train_direction(min_labels=20):
+def train_direction(output_dir=OUTPUT_DIR):
     """
-    Trana linjar klassificerare for att hitta riktning i latent space.
-    Kraver att labels.json ar ifylld.
+    Train linear classifier to find direction in latent space.
+    Requires labels.json to be filled in.
     """
-    # Ladda z-vektorer
-    with open(OUTPUT_DIR / 'z_vectors.json', 'r') as f:
+    output_dir = Path(output_dir)
+
+    with open(output_dir / 'z_vectors.json') as f:
         z_vectors = json.load(f)
-
-    # Ladda labels
-    with open(OUTPUT_DIR / 'labels.json', 'r') as f:
+    with open(output_dir / 'labels.json') as f:
         labels = json.load(f)
 
-    # Filtrera labellade samples
-    X = []
-    y = []
-
+    # Filter labeled samples
+    X, y = [], []
     for i, (filename, label) in enumerate(labels.items()):
         if label is not None:
             X.append(z_vectors[i])
             y.append(label)
 
-    if len(X) < min_labels:
-        print(f"For fa labels! Har {len(X)}, behover minst {min_labels}.")
-        print(f"Redigera {OUTPUT_DIR / 'labels.json'} och labella fler bilder.")
+    if len(X) < 10:
+        print(f"Need at least 10 labeled samples. Found: {len(X)}")
+        print(f"Edit {output_dir / 'labels.json'} and label more images.")
         return None
 
-    X = np.array(X)
-    y = np.array(y)
+    X = torch.tensor(X, dtype=torch.float32)
+    y = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
 
-    print(f"Tranar pa {len(X)} labellade samples")
-    print(f"  Positiva (skulptur): {sum(y)}")
-    print(f"  Negativa (ej skulptur): {len(y) - sum(y)}")
+    # Simple linear classifier
+    direction = torch.randn(LATENT_DIM, 1, requires_grad=True)
+    optimizer = torch.optim.Adam([direction], lr=0.01)
 
-    # Enkel linjar klassificerare (logistisk regression)
-    from sklearn.linear_model import LogisticRegression
+    for epoch in range(1000):
+        pred = torch.sigmoid(X @ direction)
+        loss = torch.nn.functional.binary_cross_entropy(pred, y)
 
-    clf = LogisticRegression(max_iter=1000)
-    clf.fit(X, y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-    # Riktningsvektorn ar klassificerarens vikter
-    direction = clf.coef_[0]
-    direction = direction / np.linalg.norm(direction)  # Normalisera
+    # Normalize direction
+    direction = direction.detach() / direction.norm()
 
-    # Spara riktning
-    np.save(OUTPUT_DIR / 'sculpture_direction.npy', direction)
-
-    print(f"\nRiktningsvektor sparad: {OUTPUT_DIR / 'sculpture_direction.npy'}")
-    print(f"Accuracy pa traningsdata: {clf.score(X, y):.2%}")
+    # Save direction
+    torch.save(direction, output_dir / 'direction.pt')
+    print(f"Direction saved to {output_dir / 'direction.pt'}")
 
     return direction
 
 
-def generate_along_direction(G, direction, n_samples=5, alpha_range=(-3, 3)):
+def explore_direction(G, direction, start_seed=42, n_steps=16, step_size=0.5, output_dir=OUTPUT_DIR):
     """
-    Generera bilder langs en riktning i latent space.
+    Generate images along a learned direction.
     """
-    direction = torch.tensor(direction, dtype=torch.float32, device=DEVICE)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_dir = OUTPUT_DIR / 'direction_samples'
-    output_dir.mkdir(exist_ok=True)
+    torch.manual_seed(start_seed)
+    z_start = torch.randn(1, LATENT_DIM, device=DEVICE)
 
-    # Generera fran flera startpunkter
-    for seed in range(3):
-        torch.manual_seed(seed + 100)
-        z_base = torch.randn(1, LATENT_DIM, device=DEVICE)
-
-        images = []
-        alphas = np.linspace(alpha_range[0], alpha_range[1], n_samples)
-
-        with torch.no_grad():
-            for alpha in alphas:
-                z = z_base + alpha * direction.unsqueeze(0)
-                img = G(z)
-                img = (img + 1) / 2
-                images.append(img)
-
-        # Spara som grid
-        grid = torch.cat(images, dim=0)
-        save_image(grid, output_dir / f'direction_seed{seed}.png', nrow=n_samples)
-
-    print(f"Riktningssamples sparade i: {output_dir}")
-
-
-def interpolate(G, seed1, seed2, n_steps=8):
-    """
-    Interpolera mellan tva punkter i latent space.
-    """
-    output_dir = OUTPUT_DIR / 'interpolations'
-    output_dir.mkdir(exist_ok=True)
-
-    torch.manual_seed(seed1)
-    z1 = torch.randn(1, LATENT_DIM, device=DEVICE)
-
-    torch.manual_seed(seed2)
-    z2 = torch.randn(1, LATENT_DIM, device=DEVICE)
+    direction = direction.to(DEVICE).view(1, -1)
 
     images = []
-
     with torch.no_grad():
-        for t in np.linspace(0, 1, n_steps):
-            z = (1 - t) * z1 + t * z2
+        for i, alpha in enumerate(torch.linspace(-3, 3, n_steps)):
+            z = z_start + alpha * direction
             img = G(z)
             img = (img + 1) / 2
             images.append(img)
 
-    grid = torch.cat(images, dim=0)
-    save_image(grid, output_dir / f'interp_{seed1}_to_{seed2}.png', nrow=n_steps)
+    grid = make_grid(torch.cat(images), nrow=4)
+    save_image(grid, output_dir / f'direction_exploration_seed{start_seed}.png')
+    print(f"Saved: {output_dir / f'direction_exploration_seed{start_seed}.png'}")
 
-    print(f"Interpolation sparad: {output_dir / f'interp_{seed1}_to_{seed2}.png'}")
 
-
-def random_walk(G, seed=42, n_steps=16, step_size=0.3):
+def interpolate(G, seed_a, seed_b, n_steps=16, output_dir=OUTPUT_DIR):
     """
-    Slumpmassig vandring i latent space.
+    Linear interpolation between two latent points.
     """
-    output_dir = OUTPUT_DIR / 'random_walks'
-    output_dir.mkdir(exist_ok=True)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    torch.manual_seed(seed_a)
+    z_a = torch.randn(1, LATENT_DIM, device=DEVICE)
+
+    torch.manual_seed(seed_b)
+    z_b = torch.randn(1, LATENT_DIM, device=DEVICE)
+
+    images = []
+    with torch.no_grad():
+        for t in torch.linspace(0, 1, n_steps):
+            z = (1 - t) * z_a + t * z_b
+            img = G(z)
+            img = (img + 1) / 2
+            images.append(img)
+
+    grid = make_grid(torch.cat(images), nrow=4)
+    save_image(grid, output_dir / f'interp_{seed_a}_to_{seed_b}.png')
+    print(f"Saved: {output_dir / f'interp_{seed_a}_to_{seed_b}.png'}")
+
+
+def random_walk(G, seed, n_steps=16, step_size=0.3, output_dir=OUTPUT_DIR):
+    """
+    Random walk through latent space.
+    Each step moves in a random direction.
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     torch.manual_seed(seed)
     z = torch.randn(1, LATENT_DIM, device=DEVICE)
 
     images = []
-
     with torch.no_grad():
         for i in range(n_steps):
             img = G(z)
             img = (img + 1) / 2
             images.append(img)
 
-            # Ta ett steg i slumpmassig riktning
+            # Random step
             dz = torch.randn(1, LATENT_DIM, device=DEVICE) * step_size
             z = z + dz
 
-    grid = torch.cat(images, dim=0)
-    save_image(grid, output_dir / f'walk_seed{seed}.png', nrow=4)
-
-    print(f"Random walk sparad: {output_dir / f'walk_seed{seed}.png'}")
-
-
-def main():
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Latent Space Explorer')
-    parser.add_argument('--generate', type=int, default=0,
-                       help='Generera N samples for labeling')
-    parser.add_argument('--train', action='store_true',
-                       help='Trana riktningsvektor fran labels')
-    parser.add_argument('--explore', action='store_true',
-                       help='Generera samples langs riktningen')
-    parser.add_argument('--interpolate', nargs=2, type=int,
-                       help='Interpolera mellan tva seeds')
-    parser.add_argument('--walk', type=int, default=0,
-                       help='Random walk fran seed')
-
-    args = parser.parse_args()
-
-    G = load_generator()
-
-    if args.generate > 0:
-        generate_samples(G, n_samples=args.generate)
-
-    elif args.train:
-        direction = train_direction()
-        if direction is not None:
-            generate_along_direction(G, direction)
-
-    elif args.explore:
-        direction = np.load(OUTPUT_DIR / 'sculpture_direction.npy')
-        generate_along_direction(G, direction)
-
-    elif args.interpolate:
-        interpolate(G, args.interpolate[0], args.interpolate[1])
-
-    elif args.walk > 0:
-        random_walk(G, seed=args.walk)
-
-    else:
-        # Visa hjalp
-        print("Latent Space Explorer")
-        print("=" * 50)
-        print("\nAnvandning:")
-        print("  python latent_explorer.py --generate 100   # Generera 100 samples")
-        print("  python latent_explorer.py --train          # Trana riktning")
-        print("  python latent_explorer.py --explore        # Generera langs riktning")
-        print("  python latent_explorer.py --interpolate 42 123")
-        print("  python latent_explorer.py --walk 42        # Random walk")
-        print("\nArbetsflode:")
-        print("  1. --generate 100")
-        print("  2. Labella i labels.json (1=skulptur, 0=ej)")
-        print("  3. --train")
-        print("  4. --explore")
+    # Save as grid
+    grid = make_grid(torch.cat(images), nrow=4)
+    save_image(grid, output_dir / f'walk_seed{seed}.png')
+    print(f"Saved: {output_dir / f'walk_seed{seed}.png'}")
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Latent Space Explorer')
+    parser.add_argument('--checkpoint', type=str, default=CHECKPOINT, help='Path to generator checkpoint')
+    parser.add_argument('--output', type=str, default=str(OUTPUT_DIR), help='Output directory')
+
+    # Actions
+    parser.add_argument('--generate', type=int, metavar='N', help='Generate N samples for labeling')
+    parser.add_argument('--train', action='store_true', help='Train direction from labels')
+    parser.add_argument('--explore', type=int, metavar='SEED', help='Explore along trained direction')
+    parser.add_argument('--interpolate', nargs=2, type=int, metavar=('A', 'B'), help='Interpolate between seeds')
+    parser.add_argument('--walk', type=int, metavar='SEED', help='Random walk from seed')
+
+    # Parameters
+    parser.add_argument('--steps', type=int, default=16, help='Number of steps')
+    parser.add_argument('--step_size', type=float, default=0.3, help='Step size for walk')
+
+    args = parser.parse_args()
+
+    OUTPUT_DIR = Path(args.output)
+    CHECKPOINT = args.checkpoint
+
+    if args.generate:
+        G = load_generator(args.checkpoint)
+        generate_samples(G, args.generate, OUTPUT_DIR)
+
+    elif args.train:
+        train_direction(OUTPUT_DIR)
+
+    elif args.explore is not None:
+        G = load_generator(args.checkpoint)
+        direction = torch.load(OUTPUT_DIR / 'direction.pt')
+        explore_direction(G, direction, args.explore, args.steps, output_dir=OUTPUT_DIR)
+
+    elif args.interpolate:
+        G = load_generator(args.checkpoint)
+        interpolate(G, args.interpolate[0], args.interpolate[1], args.steps, OUTPUT_DIR)
+
+    elif args.walk is not None:
+        G = load_generator(args.checkpoint)
+        random_walk(G, args.walk, args.steps, args.step_size, OUTPUT_DIR)
+
+    else:
+        print("Latent Space Explorer")
+        print("=" * 40)
+        print()
+        print("Usage:")
+        print("  --generate N       Generate N samples for labeling")
+        print("  --train            Train direction classifier")
+        print("  --explore SEED     Explore along direction from SEED")
+        print("  --interpolate A B  Interpolate between seeds A and B")
+        print("  --walk SEED        Random walk from SEED")
+        print()
+        print("Examples:")
+        print("  python latent_explorer.py --walk 123 --checkpoint model.pt")
+        print("  python latent_explorer.py --interpolate 42 666")

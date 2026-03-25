@@ -384,7 +384,7 @@ After training:
 
 # Part 4: The Complete Experiment History
 
-## Timeline: 400 Hours, 46 Experiments
+## Timeline: 600+ Hours, 46 Experiments (June 2025 - March 2026)
 
 ### Phase 1: StyleGAN2 (EXP-001 to EXP-017)
 
@@ -467,7 +467,7 @@ After exhausting alternatives, returned to Progressive GAN. Extended training to
 
 ## The Central Insight
 
-After 400 hours:
+After 600+ hours:
 
 > **"Architecture does NOT solve data problems."**
 
