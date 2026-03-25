@@ -220,7 +220,7 @@ class ContourAwareLoss:
 | Depth Network | `depth_network.py` | Added complexity without benefit |
 | Slot Attention | `slot_attention.py`, `slot_diffusion.py` | Designed for synthetic data |
 | Edge Diffusion | `edge_diffusion.py`, `edge_diffusion_v2.py` | Sparse data caused collapse |
-| NadjaEmbed | `nadja_embed.py` | Custom embedding, still blurry |
+| CustomEmbed | `custom_embed.py` | Custom embedding, still blurry |
 | Latent Diffusion | `latent_diffusion.py`, `latent_diffusion_clip.py` | Distribution learning, not structure |
 
 ---
@@ -259,7 +259,7 @@ StyleGAN2 requires tens of thousands of images with consistent structure. Our da
 - Result: Violated from-scratch principle
 - CLIP's pretrained knowledge dominated
 
-### EXP-020: NadjaEMBED
+### EXP-020: CustomEMBED
 - Custom embedding network trained on our data
 - Result: Still blurry, no object structure
 
