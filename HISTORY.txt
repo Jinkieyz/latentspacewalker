@@ -122,7 +122,7 @@ This was eventually rejected because pretrained models carry knowledge from bill
 
 ### The Philosophy Shift
 
-**Source:** Comparison of `KOMPLETT_DOKUMENTATION.txt` vs final `CLAUDE.md`
+**Source:** Comparison of `KOMPLETT_DOKUMENTATION.txt` vs final project configuration file
 
 **January 2026 (pretrained approach):**
 > "The project uses pretrained models for text understanding"
